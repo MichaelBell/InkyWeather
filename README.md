@@ -12,4 +12,14 @@ Then create a file called `api_key.txt` containing your API key.
 Finally, use `find_id.py` to find the ID of your nearest forecast location
 and edit `weather-phat.py` to set the `DATAPOINT_ID` to this value.
 
+Run with `weather-phat.py -c red`, replacing red with the correct coulour 
+for your pHAT.
+
+The display is:
+```
+        Date   Time
+Temp                Wind Speed
+Feels like Temp     Precipitation Probability
+```
+
 Enjoy!
