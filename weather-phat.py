@@ -35,9 +35,10 @@ inky_display.set_border(inky_display.BLACK)
 
 # Details to customise your weather display
 
-DATAPOINT_ID   = '351765'
+DATAPOINT_ID   = '353883'
 DATAPOINT_KEY  = get_api_key()
-USE_LOCAL_TEMP = False
+USE_LOCAL_TEMP = True
+USE_BATTERY = True
 
 # Python 2 vs 3 breaking changes
 def encode(qs):
@@ -70,6 +71,19 @@ def get_local_temp():
             return int(json_data['Temp'])
 
     return -255
+
+def get_battery():
+    uri = "http://sternpi:8080/status"
+
+    res = requests.get(uri)
+    if res.status_code == 200:
+        json_data = json.loads(res.text)
+        if 'Charge' in json_data:
+            charge = float(json_data['Charge'])
+            if charge <= 50.0: return 0
+            else: return int((charge - 50.0) * 4)
+
+    return -1
 
 def create_mask(source, mask=(inky_display.WHITE, inky_display.BLACK, inky_display.RED)):
     """Create a transparency mask.
@@ -134,7 +148,7 @@ if "Period" in weather["SiteRep"]["DV"]["Location"]:
             weather_icon = icon
             break
 
-    if wind > 20: 
+    if wind >= 20: 
         weather_icon = "wind"
 
 else:
@@ -172,6 +186,11 @@ if USE_LOCAL_TEMP:
 else:
     datetime = time.strftime("%d/%m %H:%M")
     draw.text((45, 8), datetime, inky_display.WHITE, font=font)
+
+if USE_BATTERY:
+    charge = get_battery()
+    draw.line((5, 99, 5 + charge, 99), 2)
+    draw.line((5, 100, 5 + charge, 100), 2)
 
 draw.text((75, 32), u"{}°".format(temperature), inky_display.WHITE, font=font)
 draw.text((75, 55), u"{}°".format(feelslike), inky_display.RED, font=font)
